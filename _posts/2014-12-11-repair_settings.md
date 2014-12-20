@@ -3,7 +3,7 @@ layout: post
 title: "Repair Settings"
 date: 2014-12-10 00:00:00
 comments: false
-short: "Restore a database to its initial state"
+short: "Detect and correct common errors in your site settings"
 license: BSD
 version: 1.0
 author: "ElkArte Contributors"
