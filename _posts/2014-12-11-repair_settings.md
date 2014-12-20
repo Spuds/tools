@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Repair Settings"
-date: 2014-12-10 00:00:00
+date: 2014-12-10
 comments: false
 short: "Detect and correct common errors in your site settings"
 license: BSD
