@@ -65,7 +65,7 @@ function initialize_inputs()
 
 	ob_start();
 
-	if (ini_get('session.save_handler') == 'user')
+	if (ini_get('session.save_handler') === 'user')
 	{
 		@ini_set('session.save_handler', 'files');
 	}
@@ -76,7 +76,7 @@ function initialize_inputs()
 	}
 
 	// Reject magic_quotes_sybase='on'.
-	if (ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) == 'on')
+	if (ini_get('magic_quotes_sybase') || strtolower(ini_get('magic_quotes_sybase')) === 'on')
 	{
 		die('magic_quotes_sybase=on was detected: your host is using an unsecure PHP configuration, deprecated and removed in current versions. Please upgrade PHP.');
 	}
@@ -177,35 +177,35 @@ function action_show_settings()
 		$settingsArray[$i] = rtrim(stripslashes($settingsArray[$i]));
 
 		// Process only the lines that may have information
-		if (isset($settingsArray[$i][0]) && $settingsArray[$i][0] == '$')
+		if (isset($settingsArray[$i][0]) && $settingsArray[$i][0] === '$')
 		{
 			// 1 var name w/o $, 2 ' or " if quoted value, 3 quoted value if any, 4 unquoted value if any
 			preg_match('~^[$]([a-zA-Z_]+)\s*=\s*(?:(["\'])(?:(.*?)["\'])(?:\\2)?|(.*?)(?:\\2)?);~', $settingsArray[$i], $match);
 
 			// Replace dirname(__FILE__) commands with the actual value
-			if (isset($match[3]) && ($match[2] == "'" || $match[2] == '"'))
+			if (isset($match[3]) && ($match[2] === "'" || $match[2] === '"'))
 			{
-				if ($match[3] == 'dirname(__FILE__)')
+				if ($match[3] === 'dirname(__FILE__)')
 				{
 					$settings[$match[1]] = dirname(__FILE__);
 				}
-				elseif ($match[3] == 'dirname(__FILE__) . \'/sources\'')
+				elseif ($match[3] === 'dirname(__FILE__) . \'/sources\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/sources';
 				}
-				elseif ($match[3] == 'BOARDDIR . \'/sources\'')
+				elseif ($match[3] === 'BOARDDIR . \'/sources\'')
 				{
 					$settings[$match[1]] = $settings['boarddir'] . '/sources';
 				}
-				elseif ($match[3] == 'dirname(__FILE__) . \'/cache\'')
+				elseif ($match[3] === 'dirname(__FILE__) . \'/cache\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/cache';
 				}
-				elseif ($match[3] == 'dirname(__FILE__) . \'/sources/ext\'')
+				elseif ($match[3] === 'dirname(__FILE__) . \'/sources/ext\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/sources/ext';
 				}
-				elseif ($match[3] == 'dirname(__FILE__) . \'/themes/default/languages\'')
+				elseif ($match[3] === 'dirname(__FILE__) . \'/themes/default/languages\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/themes/default/languages';
 				}
@@ -216,27 +216,27 @@ function action_show_settings()
 			}
 			elseif (isset($match[4]))
 			{
-				if ($match[4] == 'dirname(__FILE__)')
+				if ($match[4] === 'dirname(__FILE__)')
 				{
 					$settings[$match[1]] = dirname(__FILE__);
 				}
-				elseif ($match[4] == 'dirname(__FILE__) . \'/sources\'')
+				elseif ($match[4] === 'dirname(__FILE__) . \'/sources\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/sources';
 				}
-				elseif ($match[4] == 'BOARDDIR . \'/sources\'')
+				elseif ($match[4] === 'BOARDDIR . \'/sources\'')
 				{
 					$settings[$match[1]] = $settings['boarddir'] . '/sources';
 				}
-				elseif ($match[4] == 'dirname(__FILE__) . \'/cache\'')
+				elseif ($match[4] === 'dirname(__FILE__) . \'/cache\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/cache';
 				}
-				elseif ($match[4] == 'dirname(__FILE__) . \'/sources/ext\'')
+				elseif ($match[4] === 'dirname(__FILE__) . \'/sources/ext\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/sources/ext';
 				}
-				elseif ($match[4] == 'dirname(__FILE__) . \'/themes/default/languages\'')
+				elseif ($match[4] === 'dirname(__FILE__) . \'/themes/default/languages\'')
 				{
 					$settings[$match[1]] = dirname(__FILE__) . '/themes/default/languages';
 				}
@@ -249,7 +249,7 @@ function action_show_settings()
 	}
 
 	// If we were able to make a db connection, load in more settings
-	if ($db_connection == true)
+	if ($db_connection === true)
 	{
 		// Load all settings
 		$db->skip_next_error();
@@ -304,10 +304,10 @@ function action_show_settings()
 		'database_settings' => array(
 			'db_server' => array('flat', 'string', 'localhost'),
 			'db_name' => array('flat', 'string'),
-			'db_user' => array($db_type == 'sqlite' ? 'hidden' : 'flat', 'string'),
-			'db_passwd' => array($db_type == 'sqlite' ? 'hidden' : 'flat', 'string'),
-			'ssi_db_user' => array($db_type == 'sqlite' ? 'hidden' : 'flat', 'string'),
-			'ssi_db_passwd' => array($db_type == 'sqlite' ? 'hidden' : 'flat', 'string'),
+			'db_user' => array('flat', 'string'),
+			'db_passwd' => array('flat', 'string'),
+			'ssi_db_user' => array('flat', 'string'),
+			'ssi_db_passwd' => array('flat', 'string'),
 			'db_prefix' => array('flat', 'string'),
 			'db_persist' => array('flat', 'int', 1),
 		),
@@ -315,7 +315,6 @@ function action_show_settings()
 			'boardurl' => array('flat', 'string'),
 			'boarddir' => array('flat', 'string'),
 			'sourcedir' => array('flat', 'string'),
-			'cachedir' => array('flat', 'string'),
 			'extdir' => array('flat', 'string'),
 			'languagedir' => array('flat', 'string'),
 			'attachmentUploadDir' => array('db', 'array_string'),
@@ -323,6 +322,12 @@ function action_show_settings()
 			'avatar_directory' => array('db', 'string'),
 			'smileys_url' => array('db', 'string'),
 			'smileys_dir' => array('db', 'string'),
+		),
+		'cache_settings' => array(
+			'cache_accelerator' => array('flat', 'string'),
+			'cache_enable' => array('flat', 'int', 1),
+			'cachedir' => array('flat', 'string'),
+			'cache_memcached' => array('flat', 'string')
 		),
 		'theme_path_url_settings' => array(),
 	);
@@ -343,9 +348,9 @@ function action_show_settings()
 		$known_settings['path_url_settings']['sourcedir'][2] = realpath(dirname(__FILE__) . '/sources');
 	}
 
-	if (file_exists(dirname(__FILE__) . '/cache'))
+	if (file_exists(dirname(__FILE__) . '/cache') && isset($known_settings['cache_settings']['cachedir']))
 	{
-		$known_settings['path_url_settings']['cachedir'][2] = realpath(dirname(__FILE__) . '/cache');
+		$known_settings['cache_settings']['cachedir'][2] = realpath(dirname(__FILE__) . '/cache');
 	}
 
 	if (file_exists(dirname(__FILE__) . '/sources/ext'))
@@ -414,7 +419,7 @@ function action_show_settings()
 		}
 	}
 
-	if ($db_connection == true)
+	if ($db_connection === true)
 	{
 		$db->skip_next_error();
 		$request = $db->db_list_tables('', '
@@ -423,7 +428,7 @@ function action_show_settings()
 			)
 		);
 
-		if ($request == true)
+		if ($request === true)
 		{
 			if ($db->num_rows($request) == 1)
 			{
@@ -473,7 +478,7 @@ function action_show_settings()
 
 		foreach ($section as $setting => $info)
 		{
-			if ($info[0] == 'hidden')
+			if ($info[0] === 'hidden')
 			{
 				continue;
 			}
@@ -492,10 +497,10 @@ function action_show_settings()
 							</td>
 							<td style="padding-bottom: 1ex;">';
 
-			if ($info[1] == 'int' || $info[1] == 'check')
+			if ($info[1] === 'int' || $info[1] === 'check')
 			{
 				// Default checkmarks to off if they are not set
-				if ($info[1] == 'check' && !isset($settings[$setting]))
+				if ($info[1] === 'check' && !isset($settings[$setting]))
 				{
 					$settings[$setting] = 0;
 				}
@@ -508,21 +513,21 @@ function action_show_settings()
 								<br />';
 				}
 			}
-			elseif ($info[1] == 'string')
+			elseif ($info[1] === 'string')
 			{
 				echo '
-								<input type="text" name="', $info[0], 'settings[', $setting, ']" id="', $setting, '" value="', isset($settings[$setting]) ? htmlspecialchars($settings[$setting]) : '', '" size="', $settings_section == 'path_url_settings' || $settings_section == 'theme_path_url_settings' ? '60" style="width: 80%;' : '30', '" class="input_text" />';
+								<input type="text" name="', $info[0], 'settings[', $setting, ']" id="', $setting, '" value="', isset($settings[$setting]) ? htmlspecialchars($settings[$setting]) : '', '" size="', $settings_section === 'path_url_settings' || $settings_section === 'theme_path_url_settings' ? '60" style="width: 80%;' : '30', '" class="input_text" />';
 
 				if (isset($info[2]))
 				{
 					echo '
-								<div style="font-size: smaller;">', $txt['default_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, '_default" onclick="document.getElementById(\'', $setting, '\').value = ', $info[2] == '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $info[2], '</a></strong>&quot;.</div>',
-					$info[2] == '' ? '' : ($setting != 'language' && $setting != 'cookiename' ? '
+								<div style="font-size: smaller;">', $txt['default_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, '_default" onclick="document.getElementById(\'', $setting, '\').value = ', $info[2] === '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $info[2], '</a></strong>&quot;.</div>',
+					$info[2] === '' ? '' : ($setting != 'language' && $setting != 'cookiename' ? '
 								<script><!-- // --><![CDATA[
 									resetSettings[settingsCounter++] = "' . $setting . '"; // ]]></script>' : '');
 				}
 			}
-			elseif ($info[1] == 'array_string')
+			elseif ($info[1] === 'array_string')
 			{
 				if (!is_array($settings[$setting]))
 				{
@@ -539,22 +544,22 @@ function action_show_settings()
 				{
 					$suggested = false;
 					echo '
-								<input type="text" name="', $info[0], 'settings[', $setting, '_', $item, ']" id="', $setting, $item, '" value="', $array_setting, '" size="', $settings_section == 'path_url_settings' || $settings_section == 'theme_path_url_settings' ? '60" style="width: 80%;' : '30', '" class="input_text" />';
+								<input type="text" name="', $info[0], 'settings[', $setting, '_', $item, ']" id="', $setting, $item, '" value="', $array_setting, '" size="', $settings_section === 'path_url_settings' || $settings_section === 'theme_path_url_settings' ? '60" style="width: 80%;' : '30', '" class="input_text" />';
 
 					$suggested = guess_attachments_directories($item, $array_setting);
 
 					if (!empty($suggested))
 					{
 						echo '
-								<div style="font-size: smaller;">', $txt['default_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, $item, '_default" onclick="document.getElementById(\'', $setting, $item, '\').value = ', $suggested[0] == '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $suggested[0], '</a></strong>&quot;.</div>',
-						$suggested[0] == '' ? '' : '
+								<div style="font-size: smaller;">', $txt['default_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, $item, '_default" onclick="document.getElementById(\'', $setting, $item, '\').value = ', $suggested[0] === '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $suggested[0], '</a></strong>&quot;.</div>',
+						$suggested[0] === '' ? '' : '
 								<script><!-- // --><![CDATA[
 									resetSettings[settingsCounter++] = "' . $setting . $item . '"; // ]]></script>';
 
 						for ($i = 1; $i < count($suggested); $i++)
 						{
 							echo '
-								<div style="font-size: smaller;">', $txt['other_possible_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, $item, '_default" onclick="document.getElementById(\'', $setting, $item, '\').value = ', $suggested[$i] == '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $suggested[$i], '</a></strong>&quot;.</div>';
+								<div style="font-size: smaller;">', $txt['other_possible_value'], ': &quot;<strong><a href="javascript:void(0);" id="', $setting, $item, '_default" onclick="document.getElementById(\'', $setting, $item, '\').value = ', $suggested[$i] === '' ? '\'\';">' . $txt['recommend_blank'] : 'this.innerHTML;">' . $suggested[$i], '</a></strong>&quot;.</div>';
 						}
 					}
 					else
@@ -705,7 +710,7 @@ function guess_attachments_directories($id, $array_setting)
 		// Attachments is the first guess
 		foreach ($availableDirs as $dir)
 		{
-			if ($dir == 'attachments')
+			if ($dir === 'attachments')
 			{
 				$guesses[] = dirname(__FILE__) . '/' . $dir;
 			}
@@ -714,7 +719,7 @@ function guess_attachments_directories($id, $array_setting)
 		// All the others
 		foreach ($availableDirs as $dir)
 		{
-			if ($dir != 'attachments')
+			if ($dir !== 'attachments')
 			{
 				$guesses[] = dirname(__FILE__) . '/' . $dir;
 			}
@@ -764,7 +769,7 @@ function action_set_settings()
 		$settingsArray[$i] = rtrim($settingsArray[$i]);
 
 		// Remove the redirect...
-		if ($settingsArray[$i] == 'if (file_exists(dirname(__FILE__) . \'/install.php\'))')
+		if ($settingsArray[$i] === 'if (file_exists(dirname(__FILE__) . \'/install.php\'))')
 		{
 			$settingsArray[$i] = '';
 			$settingsArray[$i++] = '';
