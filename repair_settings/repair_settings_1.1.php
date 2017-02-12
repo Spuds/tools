@@ -10,7 +10,7 @@
  * copyright:    2011 Simple Machines (http://www.simplemachines.org)
  * license:    BSD, See included LICENSE.TXT for terms and conditions.
  *
- * @version 1.0
+ * @version 1.1
  */
 
 // We need the Settings.php info for database stuff.
@@ -54,7 +54,7 @@ template_show_footer();
 function initialize_inputs()
 {
 	global $db_connection, $sourcedir, $boarddir, $languagedir, $extdir, $cachedir;
-	global $db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_type;
+	global $db_server, $db_name, $db_user, $db_passwd, $db_prefix, $db_type, $db_port;
 
 	// Turn off magic quotes runtime and enable error reporting.
 	if (function_exists('set_magic_quotes_runtime'))
@@ -104,7 +104,7 @@ function initialize_inputs()
 
 	// PHP 5 might complain if we don't do this now.
 	$server_offset = @mktime(0, 0, 0, 1, 1, 1970);
-	date_default_timezone_set(date_default_timezone_get());
+	date_default_timezone_set('Etc/GMT' . ($server_offset > 0 ? '+' : '') . ($server_offset / 3600));
 
 	$db_connection = false;
 
@@ -120,20 +120,26 @@ function initialize_inputs()
 		DEFINE('SOURCEDIR', $sourcedir);
 		DEFINE('ADMINDIR', $sourcedir . '/admin');
 		DEFINE('CONTROLLERDIR', $sourcedir . '/controllers');
-		DEFINE('DATABASEDIR', $sourcedir . '/database');
 		DEFINE('SUBSDIR', $sourcedir . '/subs');
+		DEFINE('ADDONSDIR', $boarddir . '/addons');
 		unset($boarddir, $cachedir, $sourcedir, $languagedir, $extdir);
 
+		// Initialize the class Autoloader
+		require(SOURCEDIR . '/Autoloader.class.php');
+		$autoloder = Elk_Autoloader::getInstance();
+		$autoloder->setupAutoloader(array(SOURCEDIR, SUBSDIR, CONTROLLERDIR, ADMINDIR, ADDONSDIR));
+		$autoloder->register(SOURCEDIR, '\\ElkArte');
+
 		// Default the database type to MySQL if its not set in settings
-		if (empty($db_type) || !file_exists(DATABASEDIR . '/Db-' . $db_type . '.class.php'))
+		if (empty($db_type) || !file_exists(SOURCEDIR . '/database/Db-' . $db_type . '.subs.php'))
 		{
 			$db_type = 'mysql';
 		}
 
 		// Lets make a connection to the db
 		require_once(SOURCEDIR . '/Load.php');
-		require_once(DATABASEDIR . '/Database.subs.php');
-		$db_connection = elk_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true));
+		require_once(SOURCEDIR . '/database/Database.subs.php');
+		$db_connection = elk_db_initiate($db_server, $db_name, $db_user, $db_passwd, $db_prefix, array('non_fatal' => true, 'port' => $db_port), $db_type);
 	}
 }
 
@@ -246,11 +252,11 @@ function action_show_settings()
 	if ($db_connection == true)
 	{
 		// Load all settings
+		$db->skip_next_error();
 		$request = $db->query(true, '
 			SELECT DISTINCT variable, value
 			FROM {db_prefix}settings',
 			array(
-				'db_error_skip' => true
 			), $db_connection
 		);
 		while ($row = $db->fetch_assoc($request))
@@ -260,6 +266,7 @@ function action_show_settings()
 		$db->free_result($request);
 
 		// Load all the themes.
+		$db->skip_next_error();
 		$request = $db->query(true, '
 			SELECT variable, value, id_theme
 			FROM {db_prefix}themes
@@ -267,7 +274,6 @@ function action_show_settings()
 				AND variable IN ({array_string:variables})',
 			array(
 				'variables' => array('theme_dir', 'theme_url', 'images_url', 'name'),
-				'db_error_skip' => true
 			)
 		);
 		$theme_settings = array();
@@ -410,10 +416,10 @@ function action_show_settings()
 
 	if ($db_connection == true)
 	{
+		$db->skip_next_error();
 		$request = $db->db_list_tables('', '
 			{db_prefix}log_topics',
 			array(
-				'db_error_skip' => true,
 			)
 		);
 
@@ -923,7 +929,7 @@ function load_language_data()
 {
 	global $txt;
 
-	$txt['elkarte_repair_settings'] = 'ElkArte Settings Repair Tool';
+	$txt['elkarte_repair_settings'] = 'ElkArte 1.1 Repair Tool';
 	$txt['no_value'] = '<em style="font-weight: normal; color: red;">Value not found!</em>';
 	$txt['default_value'] = 'Recommended value';
 	$txt['other_possible_value'] = 'Other possible value';
