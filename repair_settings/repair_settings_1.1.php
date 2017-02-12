@@ -338,8 +338,9 @@ function action_show_settings()
 	// Let's assume we don't want to change the current theme
 	$settings['theme_default'] = 0;
 
+	$schema = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === 1 || $_SERVER['HTTPS'] === 443) ? 'https' : 'http';
 	$host = empty($_SERVER['HTTP_HOST']) ? $_SERVER['SERVER_NAME'] . (empty($_SERVER['SERVER_PORT']) || $_SERVER['SERVER_PORT'] == '80' ? '' : ':' . $_SERVER['SERVER_PORT']) : $_SERVER['HTTP_HOST'];
-	$url = (empty($_SERVER['HTTPS']) ? 'http://' : 'https://') . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
+	$url = $schema . '://' . $host . substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/'));
 	$known_settings['path_url_settings']['boardurl'][2] = $url;
 	$known_settings['path_url_settings']['boarddir'][2] = dirname(__FILE__);
 
@@ -790,8 +791,13 @@ function action_set_settings()
 			if (strncasecmp($settingsArray[$i], '$' . $var, 1 + strlen($var)) == 0)
 			{
 				$comment = strstr($settingsArray[$i], '#');
-				$settingsArray[$i] = '$' . $var . ' = \'' . $val . '\';' . ($comment != '' ? "\t\t" . $comment : '');
-			}
+
+				// Cast these properly
+				if (in_array($val, array('0', '1', '2', 'true', 'false')))
+					$settingsArray[$i] = '$' . $var . ' = ' . $val . ';' . ($comment != '' ? "\t\t" . $comment : '');
+ 				else
+ 					$settingsArray[$i] = '$' . $var . ' = \'' . $val . '\';' . ($comment != '' ? "\t\t" . $comment : '');
+ 			}
 		}
 	}
 
@@ -921,8 +927,10 @@ function action_deleteScript()
 {
 	@unlink(__FILE__);
 
+	$schema = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === 1 || $_SERVER['HTTPS'] === 443) ? 'https' : 'http';
+
 	// Now just redirect to forum home /index.php
-	header('Location: http://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/index.php');
+	header('Location: ' . $schema . '://' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : $_SERVER['SERVER_NAME'] . ':' . $_SERVER['SERVER_PORT']) . dirname($_SERVER['PHP_SELF']) . '/index.php');
 
 	exit;
 }
